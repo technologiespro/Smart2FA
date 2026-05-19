@@ -1,0 +1,38 @@
+{
+  "name": "smart2fa-oxid",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "vite --host 0.0.0.0 --port 6001",
+    "dev": "vite --host 0.0.0.0 --port 6001",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0 --port 6001",
+    "tauri:dev": "npm run build && tauri dev",
+    "tauri:build": "npm run build && tauri build",
+    "cap:sync": "npx cap sync android",
+    "cap:android": "npm run build && npx cap sync android && npx cap open android",
+    "cap:build:release": "npm run build && npx cap sync android && cd android && gradlew assembleRelease"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.3.4",
+    "@capacitor/app": "^8.1.0",
+    "@capacitor/cli": "^8.3.4",
+    "@capacitor/core": "^8.3.4",
+    "@phosphor-icons/vue": "^2.2.1",
+    "crypto-js": "^4.2.0",
+    "html5-qrcode": "^2.3.8",
+    "otpauth": "^9.3.4",
+    "pinia": "^2.2.4",
+    "qrcode": "^1.5.4",
+    "vue": "^3.4.38",
+    "vue-router": "^4.4.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.1.4",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.14",
+    "vite": "^5.4.10"
+  }
+}
