@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Smart2FA</string>
+    <string name="title_activity_main">Smart2FA</string>
+    <string name="package_name">io.smart2fa.sth</string>
+    <string name="custom_url_scheme">io.smart2fa.sth</string>
+</resources>
