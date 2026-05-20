@@ -12,3 +12,11 @@ npx cap add android
   "cap:build:release": "npm run build && npx cap sync android && cd android && gradlew assembleRelease"
 }
 ```
+
+
+### icons
+folder resources should be placed in `assets` folder, then run:
+```
+npm install @capacitor/assets --save-dev
+npx capacitor-assets generate --android
+```
