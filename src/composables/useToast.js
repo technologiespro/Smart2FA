@@ -11,7 +11,7 @@ export function useToast() {
       title: opts.title || '',
       description: opts.description || '',
       variant: opts.variant || 'default',
-      duration: opts.duration ?? 2200,
+      duration: opts.duration ?? 3500,
     }
     toasts.value.push(t)
     setTimeout(() => {

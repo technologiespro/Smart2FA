@@ -164,8 +164,8 @@
       </button>
     </div>
 
-    <div class="mt-auto pt-8 text-center">
-      <div class="label">SMART2FA · OXID EDITION · v1.0</div>
+    <div class="mt-auto pt-8 text-center mb-40">
+      <div class="label">SMART2FA · OXID EDITION · v2.0</div>
       <div class="text-[10px] text-zinc-600 mt-1 font-mono">AES-256 · PBKDF2 · OTPAUTH RFC 6238</div>
     </div>
 
@@ -218,6 +218,9 @@ import { useSettingsStore, AUTO_LOCK_OPTIONS } from '../stores/settings'
 import { useAuthStore } from '../stores/auth'
 import { useVaultStore } from '../stores/vault'
 import { useToast } from '../composables/useToast'
+import { Capacitor } from '@capacitor/core'
+import { Filesystem, Directory } from '@capacitor/filesystem'
+import { Toast } from '@capacitor/toast'
 
 const settings = useSettingsStore()
 const auth = useAuthStore()
@@ -261,28 +264,30 @@ async function doExport() {
 
   const filename = `smart2fa-oxid-${Date.now()}.oxid`
 
-  if (isOS === 'android') {
-    try {
-      const { Filesystem, Directory } = await import('@capacitor/filesystem')
-      const { Share } = await import('@capacitor/share')
+  const platform = Capacitor.getPlatform()
 
-      const result = await Filesystem.writeFile({
+  if (platform !== 'web') {
+    try {
+      // Конвертируем в base64 как в wallet-pro
+      //const base64 = btoa(payload)
+      await Filesystem.writeFile({
         path: filename,
-        data: payload,
+        data: payload, //base64,
         directory: Directory.Documents,
       })
-
-      await Share.share({
-        title: 'Smart2FA Backup',
-        url: result.uri,
+      await Toast.show({
+        text: `File saved: ${filename}`,
+        duration: 'long'
       })
-
-      push({ title: 'BACKUP READY', description: 'Encrypted file exported', variant: 'success' })
+      push({ title: 'BACKUP READY', description: `File saved: ${filename} in file system`, variant: 'success',  duration: 5000 })
     } catch (e) {
+      await Toast.show({
+        text: `Error: ${e.message}`,
+        duration: 'long'
+      })
       push({ title: 'EXPORT FAILED', description: e.message, variant: 'error' })
     }
   } else {
-    // Web / Tauri — стандартный download через Blob
     const blob = new Blob([payload], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -292,7 +297,7 @@ async function doExport() {
     a.click()
     a.remove()
     URL.revokeObjectURL(url)
-    push({ title: 'BACKUP READY', description: 'Encrypted file downloaded', variant: 'success' })
+    push({ title: 'BACKUP READY', description: 'Encrypted file downloaded', variant: 'success',  duration: 5000 })
   }
 }
 
