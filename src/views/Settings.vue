@@ -269,10 +269,7 @@ async function doExport() {
 
 if (platform !== 'web') {
     try {
-      // Убедимся что payload это строка
       const payloadStr = typeof payload === 'string' ? payload : JSON.stringify(payload)
-      console.log('PAYLOAD TYPE:', typeof payloadStr)
-      console.log('PAYLOAD PREVIEW:', payloadStr.slice(0, 100))
       await Filesystem.writeFile({
         path: filename,
         data: payloadStr,
@@ -280,7 +277,7 @@ if (platform !== 'web') {
         encoding: Encoding.UTF8,
       })
       await Toast.show({
-        text: `OK: ${payloadStr.substring(0, 30)}...`,
+        text: `File saved: ${filename}`,
         duration: 'long'
       })
       push({ title: 'BACKUP READY', description: `File saved: ${filename}`, variant: 'success' })
@@ -332,7 +329,7 @@ function cancelImport() {
 }
 
 function doWipe() {
-  if (wipeConfirm.value !== 'WIPE') return
+  if (wipeConfirm.value !== 'WIPE' || wipeConfirm.value !== 'wipe') return
   vault.clearAll()
   auth.wipe()
   push({ title: 'VAULT WIPED', description: 'All data destroyed', variant: 'error' })

@@ -1,5 +1,12 @@
 ## Android
 
+debug on device
+
+```
+npx cap run android
+```
+
+
 ```
 npm install @capacitor/cli @capacitor/core
 npx cap init --web-dir dist --app-name Smart2FA --package-id com.smart2fa.app
