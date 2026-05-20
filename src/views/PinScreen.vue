@@ -65,7 +65,7 @@ const auth = useAuthStore()
 const vault = useVaultStore()
 const router = useRouter()
 
-const bgUrl = '/bg-2.jpg'
+const bgUrl = '/bg-1.jpg'
 
 const pinInput = ref('')
 const firstPin = ref('')
