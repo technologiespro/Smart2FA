@@ -20,3 +20,16 @@ folder resources should be placed in `assets` folder, then run:
 npm install @capacitor/assets --save-dev
 npx capacitor-assets generate --android
 ```
+
+## Tauri
+
+```
+pnpm tauri icon resources/icon.png
+```
+
+```
+"scripts": {
+  "tauri:dev": "pnpm tauri dev",
+  "tauri:build": "pnpm tauri build"
+}
+```

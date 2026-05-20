@@ -219,7 +219,7 @@ import { useAuthStore } from '../stores/auth'
 import { useVaultStore } from '../stores/vault'
 import { useToast } from '../composables/useToast'
 import { Capacitor } from '@capacitor/core'
-import { Filesystem, Directory } from '@capacitor/filesystem'
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem'
 import { Toast } from '@capacitor/toast'
 
 const settings = useSettingsStore()
@@ -266,20 +266,24 @@ async function doExport() {
 
   const platform = Capacitor.getPlatform()
 
-  if (platform !== 'web') {
+
+if (platform !== 'web') {
     try {
-      // Конвертируем в base64 как в wallet-pro
-      //const base64 = btoa(payload)
+      // Убедимся что payload это строка
+      const payloadStr = typeof payload === 'string' ? payload : JSON.stringify(payload)
+      console.log('PAYLOAD TYPE:', typeof payloadStr)
+      console.log('PAYLOAD PREVIEW:', payloadStr.slice(0, 100))
       await Filesystem.writeFile({
         path: filename,
-        data: payload, //base64,
+        data: payloadStr,
         directory: Directory.Documents,
+        encoding: Encoding.UTF8,
       })
       await Toast.show({
-        text: `File saved: ${filename}`,
+        text: `OK: ${payloadStr.substring(0, 30)}...`,
         duration: 'long'
       })
-      push({ title: 'BACKUP READY', description: `File saved: ${filename} in file system`, variant: 'success',  duration: 5000 })
+      push({ title: 'BACKUP READY', description: `File saved: ${filename}`, variant: 'success' })
     } catch (e) {
       await Toast.show({
         text: `Error: ${e.message}`,
