@@ -96,7 +96,7 @@
     <!-- FAB -->
     <button
       type="button"
-      class="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center shadow-rust-glow active:scale-95 transition-transform"
+      class="fixed bottom-button-plus right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center shadow-rust-glow active:scale-95 transition-transform"
       style="background-color:#E25822; color:#1A1B1E"
       @click="goAdd"
       data-testid="fab-add"

@@ -9,7 +9,7 @@
       <span class="label tracking-[0.3em]">SMART2FA · OXID</span>
     </div>
 
-    <main class="relative z-10 mx-auto max-w-md min-h-screen">
+    <main class="relative z-10 mx-auto max-w-md min-h-screen main-screen">
       <router-view v-slot="{ Component }">
         <transition name="page" mode="out-in">
           <component :is="Component" />

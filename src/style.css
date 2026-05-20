@@ -133,9 +133,36 @@ html.light .bg-grid {
 
 /* Android safe area insets */
 body.os-android {
-  padding-top: 24px;
-  padding-bottom: 48px;
+  padding-top: 30px;
 }
-body.os-android #app {
-  min-height: calc(100vh - 72px);
+
+body.os-android .min-h-screen {
+  max-height: calc(100vh - 96px) !important;
+  min-height: 94vh !important;
+
+}
+
+.bottom-button-plus {
+  bottom: 1.5rem;
+}
+
+body.os-android .bottom-button-plus {
+  bottom: 3rem !important;
+}
+
+
+#camera-main {
+  top: -1rem;
+}
+
+#camera-overlay {
+  top: -96px;
+}
+
+body.os-android #camera-overlay {
+  top: 0;
+}
+
+body.os-android #qr-reader {
+  top: -60px !important;
 }

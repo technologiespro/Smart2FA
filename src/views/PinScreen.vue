@@ -47,7 +47,7 @@
       </button>
     </div>
 
-    <div class="relative z-10 mt-auto">
+    <div class="relative z-10 mt-auto mb-auto">
       <Keypad @press="onPress" />
     </div>
   </div>
@@ -65,7 +65,7 @@ const auth = useAuthStore()
 const vault = useVaultStore()
 const router = useRouter()
 
-const bgUrl = '/bg-pin.png'
+const bgUrl = '/bg-2.jpg'
 
 const pinInput = ref('')
 const firstPin = ref('')

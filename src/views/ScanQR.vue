@@ -12,11 +12,11 @@
     </div>
 
     <!-- Camera viewport -->
-    <div class="relative aspect-square w-full rounded-lg overflow-hidden metallic mb-5" data-testid="camera-viewport">
+    <div id="camera-main" class="relative aspect-square w-full rounded-lg overflow-hidden metallic mb-5" style="border: solid 1px #26292c;" data-testid="camera-viewport">
       <div id="qr-reader" ref="readerEl" class="absolute inset-0 [&_video]:!w-full [&_video]:!h-full [&_video]:!object-cover"></div>
 
       <!-- Reticle overlay -->
-      <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
+      <div id="camera-overlay" class="absolute inset-0 pointer-events-none flex items-center justify-center">
         <div class="relative w-3/5 aspect-square">
           <span class="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-rust"></span>
           <span class="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-rust"></span>
