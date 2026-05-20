@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen flex flex-col px-6 pt-20 pb-10" data-testid="settings-screen">
-    <div class="mb-6">
+  <div class="min-h-screen flex flex-col px-6 pt-11 pb-10" data-testid="settings-screen">
+    <div class="mb-5">
       <button class="label flex items-center gap-1 text-zinc-400 hover:text-rust transition-colors" @click="$router.back()" data-testid="back-button">
         ← Back
       </button>
@@ -255,19 +255,45 @@ function disableBio() {
   push({ title: 'BIOMETRIC DISARMED', description: 'Removed from this device', variant: 'success' })
 }
 
-function doExport() {
+async function doExport() {
   const payload = vault.exportEncrypted()
   if (!payload) return
-  const blob = new Blob([payload], { type: 'application/json' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `smart2fa-oxid-${Date.now()}.oxid`
-  document.body.appendChild(a)
-  a.click()
-  a.remove()
-  URL.revokeObjectURL(url)
-  push({ title: 'BACKUP READY', description: 'Encrypted file downloaded', variant: 'success' })
+
+  const filename = `smart2fa-oxid-${Date.now()}.oxid`
+
+  if (isOS === 'android') {
+    try {
+      const { Filesystem, Directory } = await import('@capacitor/filesystem')
+      const { Share } = await import('@capacitor/share')
+
+      const result = await Filesystem.writeFile({
+        path: filename,
+        data: payload,
+        directory: Directory.Documents,
+      })
+
+      await Share.share({
+        title: 'Smart2FA Backup',
+        url: result.uri,
+      })
+
+      push({ title: 'BACKUP READY', description: 'Encrypted file exported', variant: 'success' })
+    } catch (e) {
+      push({ title: 'EXPORT FAILED', description: e.message, variant: 'error' })
+    }
+  } else {
+    // Web / Tauri — стандартный download через Blob
+    const blob = new Blob([payload], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
+    push({ title: 'BACKUP READY', description: 'Encrypted file downloaded', variant: 'success' })
+  }
 }
 
 async function onImportFile(e) {

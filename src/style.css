@@ -137,7 +137,7 @@ body.os-android {
 }
 
 body.os-android .min-h-screen {
-  max-height: calc(100vh - 96px) !important;
+  /* max-height: calc(100vh - 30px) !important;*/
   min-height: 94vh !important;
 
 }
