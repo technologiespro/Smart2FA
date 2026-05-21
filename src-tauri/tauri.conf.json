@@ -1,6 +1,6 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "Smart2FA",
+  "productName": "Smart2FA-OXID",
   "version": "2.0.0",
   "identifier": "io.smartholdem.2fa",
   "build": {
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Smart2FA",
+        "title": "Smart2FA-OXID",
         "width": 420,
         "height": 780,
         "resizable": false,
