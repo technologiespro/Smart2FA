@@ -40,3 +40,29 @@ pnpm tauri icon resources/icon.png
   "tauri:build": "pnpm tauri build"
 }
 ```
+
+
+## Linux
+
+# 1. Системные зависимости
+sudo apt update
+sudo apt install -y curl wget libssl-dev libgtk-3-dev libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+# 2. Node.js (если не установлен)
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+
+# 3. Rust (если не установлен)
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source "$HOME/.cargo/env"
+
+# 4. Tauri CLI
+cargo install tauri-cli
+
+# 5. Клон репы и установка зависимостей
+git clone <твой-репозиторий>
+cd Smart2FA-v2
+npm install
+
+# 6. Билд
+npm run tauri:build

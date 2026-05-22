@@ -3,7 +3,7 @@
     <!-- Video background -->
     <video
       class="absolute inset-0 w-full h-full object-cover pointer-events-none"
-      src="/bg10.mp4"
+      :src="bgVideo"
       autoplay
       muted
       loop
@@ -75,15 +75,17 @@ const router = useRouter()
 const pinInput = ref('')
 const firstPin = ref('')
 const error = ref('')
-const mode = ref('enter') // 'enter' | 'create' | 'confirm'
+const mode = ref('enter')
+const bgVideo = ref('')
+
+const bgVideos = ['/bg01.mp4', '/bg02.mp4', '/bg03.mp4', '/bg04.mp4', '/bg05.mp4']
 
 onMounted(async () => {
-  // Ensure async init completes (biometric availability checks)
+  bgVideo.value = bgVideos[Math.floor(Math.random() * bgVideos.length)]
   if (!auth.biometricSupported && !auth.hasPin) {
     await auth.init()
   }
   mode.value = auth.hasPin ? 'enter' : 'create'
-  // Auto-prompt biometric on entry mode if registered
   if (mode.value === 'enter' && auth.biometricRegistered && auth.biometricSupported) {
     setTimeout(() => { tryBiometric(true) }, 250)
   }
