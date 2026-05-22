@@ -1,10 +1,17 @@
 <template>
   <div class="min-h-screen flex flex-col px-6 pt-20 pb-8 relative" data-testid="pin-screen">
-    <!-- Background texture -->
-    <div
-      class="absolute inset-0 opacity-15 pointer-events-none bg-cover bg-center"
-      :style="{ backgroundImage: `url('${bgUrl}')` }"
-    ></div>
+    <!-- Video background -->
+    <video
+      class="absolute inset-0 w-full h-full object-cover pointer-events-none"
+      src="/bg10.mp4"
+      autoplay
+      muted
+      loop
+      playsinline
+    ></video>
+
+    <!-- Overlay for readability -->
+    <div class="absolute inset-0 bg-black/40 pointer-events-none"></div>
 
     <div class="relative z-10 flex flex-col items-center text-center">
       <!-- Branded header -->
@@ -64,8 +71,6 @@ import Keypad from '../components/Keypad.vue'
 const auth = useAuthStore()
 const vault = useVaultStore()
 const router = useRouter()
-
-const bgUrl = '/bg-1.jpg'
 
 const pinInput = ref('')
 const firstPin = ref('')
