@@ -42,8 +42,8 @@ pub fn run() {
 
       #[cfg(desktop)]
       {
-        let quit_i = MenuItem::with_id(app, "quit", "Выход", true, None::<&str>)?;
-        let show_i = MenuItem::with_id(app, "show", "Показать Smart2FA", true, None::<&str>)?;
+        let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
+        let show_i = MenuItem::with_id(app, "show", "Show Smart2FA", true, None::<&str>)?;
         let menu = Menu::with_items(app, &[&show_i, &quit_i])?;
 
         let mut tray_builder = TrayIconBuilder::new()
