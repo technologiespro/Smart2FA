@@ -1,5 +1,12 @@
 {
   "appId": "io.smart2fa.sth",
   "appName": "Smart2FA",
-  "webDir": "dist"
+  "webDir": "dist",
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1000,
+      "splashFullScreen": true
+    }
+  }
 }
+

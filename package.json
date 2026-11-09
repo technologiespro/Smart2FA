@@ -11,6 +11,7 @@
     "tauri:dev": "npm run build && tauri dev",
     "tauri:build": "npm run build && tauri build",
     "cap:sync": "npx cap sync android",
+    "cap:icons": "npx capacitor-assets generate --android",
     "cap:android": "npm run build && npx cap sync android && npx cap open android",
     "cap:build:release": "npm run build && npx cap sync android && cd android && gradlew assembleRelease"
   },
@@ -22,6 +23,7 @@
     "@capacitor/core": "^8.3.4",
     "@capacitor/filesystem": "^8.1.2",
     "@capacitor/share": "^8.0.1",
+    "@capacitor/status-bar": "^8.0.2",
     "@capacitor/toast": "^8.0.1",
     "@fontsource/inter": "^5.2.8",
     "@fontsource/jetbrains-mono": "^5.2.8",
