@@ -38,6 +38,7 @@ settings.init()
 useAutoLock()
 
 onMounted(async () => {
+  settings.syncMinimizeToTray()
   await auth.init()
 })
 </script>

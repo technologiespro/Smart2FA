@@ -93,6 +93,38 @@
         Biometric unlock unavailable: no platform authenticator detected on this device.
       </div>
 
+      <!-- Minimize to Tray -->
+      <div
+        v-if="settings.isDesktop"
+        class="metallic rounded-lg p-4 flex items-center justify-between gap-3"
+        data-testid="tray-row"
+      >
+        <div class="min-w-0 flex-1">
+          <div class="font-mono font-bold tracking-tight flex items-center gap-2">
+            MINIMIZE TO TRAY
+            <span v-if="settings.minimizeToTray" class="text-[9px] px-1.5 py-0.5 rounded bg-rust text-charcoal tracking-widest">ON</span>
+          </div>
+          <div class="text-xs text-zinc-400 mt-0.5">
+            Close button minimizes the app to system tray instead of closing.
+          </div>
+        </div>
+        <!-- Toggle -->
+        <button
+          type="button"
+          role="switch"
+          :aria-checked="settings.minimizeToTray"
+          class="relative w-11 h-6 rounded-full transition-colors flex-shrink-0"
+          :class="settings.minimizeToTray ? 'bg-rust' : 'bg-zinc-700'"
+          @click="settings.setMinimizeToTray(!settings.minimizeToTray)"
+          data-testid="tray-toggle"
+        >
+          <span
+            class="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform"
+            :class="settings.minimizeToTray ? 'translate-x-5' : 'translate-x-0'"
+          ></span>
+        </button>
+      </div>
+
       <!-- Theme -->
       <div class="metallic rounded-lg p-4 flex items-center justify-between" data-testid="theme-row">
         <div>
