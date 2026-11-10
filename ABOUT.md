@@ -1,7 +1,7 @@
 # Smart2FA 0xid Edition
 
-> Премиум-аутентификатор 2FA с индустриально-металлической эстетикой.
-> Vue 3 + Vite + Pinia + Tailwind CSS. Без бэкенда. Всё шифруется на устройстве.
+> Premium 2FA authenticator with an industrial-metallic aesthetic.
+> Vue 3 + Vite + Pinia + Tailwind CSS. Backend-free. Everything is encrypted on-device.
 
 ![tech](https://img.shields.io/badge/Vue-3-42b883?style=flat-square)
 ![tech](https://img.shields.io/badge/Vite-5-646cff?style=flat-square)
@@ -11,120 +11,120 @@
 
 ---
 
-## 1. Что было сделано
+## 1. What Has Been Done
 
-Целиком с нуля реализован клиентский 2FA-аутентификатор "Oxid Edition":
+A client-side 2FA authenticator "Oxid Edition" built entirely from scratch:
 
-- **Полная замена шаблона**: шаблон заменён на чистый Vue 3 + Vite. Бэкенд не используется приложение работает 100 % офлайн.
-- **Industrial-Metallic дизайн-система**: Rust Orange `#E25822` поверх Dark Charcoal `#1A1B1E`, glassmorphism, металлические грани, шрифты `JetBrains Mono` (для кодов) и `Inter` (для UI).
-- **Полный жизненный цикл 2FA-токенов**: создание PIN -> разблокировка -> добавление через QR/вручную -> отображение с обратным отсчётом -> копирование -> удаление -> экспорт/импорт -> wipe.
-- **Реальная криптография**:
-  - PIN хешируется через **PBKDF2 + SHA-256, 25 000 итераций** для верификации.
-  - Хранилище токенов в `localStorage` шифруется **AES-256 CBC** ключом, выведенным из PIN тем же PBKDF2 (но с другой солью).
-- **Реальный TOTP**: библиотека `otpauth` (RFC 6238), поддержка SHA-1/256/512, 6/7/8 цифр, периодов 30/60 c.
-- **Реальный QR-сканер** через `html5-qrcode` с распознаванием URI `otpauth://` и парсингом всех параметров (issuer, label, algorithm, digits, period).
-- **Категории с цветными точками**: Crypto, Social, Work, Finance, Email, Gaming, Other c автоопределением по известным провайдерам (GitHub -> Work, Coinbase -> Crypto и т. д.).
-- **Темы**: тёмная (по умолчанию) и светлая стальная, сохраняются в `localStorage`.
-- **Тестирование**: автоматический прогон 17 сценариев все прошли (100 %).
+- **Complete Template Replacement**: The template has been replaced with clean Vue 3 + Vite. No backend is used — the application works 100% offline.
+- **Industrial-Metallic Design System**: Rust Orange `#E25822` over Dark Charcoal `#1A1B1E`, glassmorphism, metallic bevels, `JetBrains Mono` fonts (for codes) and `Inter` (for UI).
+- **Full 2FA Token Lifecycle**: Create PIN -> Unlock -> Add via QR/Manual -> Display with countdown -> Copy -> Delete -> Export/Import -> Wipe.
+- **Real Cryptography**:
+  - PIN is hashed using **PBKDF2 + SHA-256, 25,000 iterations** for verification.
+  - Token storage in `localStorage` is encrypted with **AES-256 CBC** using a key derived from the PIN via the same PBKDF2 (with a different salt).
+- **Real TOTP**: `otpauth` library (RFC 6238), supporting SHA-1/256/512, 6/7/8 digits, 30/60 s periods.
+- **Real QR Scanner** via `html5-qrcode` supporting `otpauth://` URI recognition and parsing of all parameters (issuer, label, algorithm, digits, period).
+- **Categories with Color Dots**: Crypto, Social, Work, Finance, Email, Gaming, Other with auto-detection for popular providers (GitHub -> Work, Coinbase -> Crypto, etc.).
+- **Themes**: Dark (default) and Light Steel, persisted in `localStorage`.
+- **Testing**: Automated execution of 17 test scenarios — all passed (100%).
 
 ---
 
-## 2. Как работает приложение
+## 2. How the Application Works
 
-### Поток пользователя
+### User Flow
 
 ```
-┌──────────────┐    первый запуск    ┌──────────────┐    подтверждение    ┌──────────┐
-│ Создать PIN  │ ──────────────────▶ │ Подтвердить  │ ──────────────────▶ │  Vault   │
+┌──────────────┐    First Launch     ┌──────────────┐    Confirmation     ┌──────────┐
+│  Create PIN  │ ──────────────────▶ │ Confirm PIN  │ ──────────────────▶ │  Vault   │
 └──────────────┘                     └──────────────┘                     └────┬─────┘
                                                                                │
         ┌──────────────────────────────────────────────────────────────────────┤
         │                                                                      │
         ▼                                                                      ▼
 ┌──────────────┐                                                       ┌──────────────┐
-│  Lock (PIN)  │ ◀──── повторный заход / Lock Now ──────               │   FAB (+)    │
+│  Lock (PIN)  │ ◀──── Return visit / Lock Now ─────────               │   FAB (+)    │
 └──────┬───────┘                                                       └──────┬───────┘
-       │ верный PIN                                                           │
+       │ Correct PIN                                                          │
        ▼                                                                      ▼
 ┌──────────────┐                                                       ┌──────────────┐
-│    Vault     │                                                       │ Сканировать  │
-└──────────────┘                                                       │   QR-код     │
+│    Vault     │                                                       │   Scan QR    │
+└──────────────┘                                                       │     Code     │
                                                                        └──────┬───────┘
-                                                                              │ или
+                                                                              │ or
                                                                               ▼
                                                                        ┌──────────────┐
-                                                                       │ Ввод вручную │
+                                                                       │ Manual Entry │
                                                                        └──────────────┘
 ```
 
-### Логика безопасности
+### Security Logic
 
-1. При первом запуске пользователь придумывает 4-значный PIN.
-2. PIN **не сохраняется** в открытом виде. Хранится только PBKDF2-хеш (`oxid:pin-hash`).
-3. Сам PIN держится **в оперативной памяти Pinia-стора** только во время разблокированной сессии. После перезагрузки страницы или нажатия "Lock" он стирается.
-4. Все токены сериализуются в JSON и шифруются AES-256 перед записью в `localStorage` под ключом `oxid:vault`. Без правильного PIN расшифровать их невозможно даже если злоумышленник получил доступ к локальному хранилищу.
-5. Экспорт-файл `.oxid` это та же зашифрованная полезная нагрузка, его можно безопасно отправлять себе по почте/облаку: без PIN он бесполезен.
+1. On first launch, the user creates a 4-digit PIN.
+2. The PIN is **never stored** in plaintext. Only the PBKDF2 hash (`oxid:pin-hash`) is preserved.
+3. The PIN itself is kept **in volatile memory of the Pinia store** only during an unlocked session. Upon page refresh or pressing "Lock", it is cleared.
+4. All tokens are serialized into JSON and encrypted with AES-256 before being written to `localStorage` under the `oxid:vault` key. Without the correct PIN, it is impossible to decrypt them, even if an attacker gains access to local storage.
+5. The `.oxid` export file is the exact same encrypted payload; it can be safely sent via email or cloud storage: without the PIN, it is useless.
 
-### Генерация кодов TOTP
+### TOTP Code Generation
 
-- Раз в секунду срабатывает таймер на каждой карточке: пересчитывается код и оставшееся время.
-- Прогресс-полоска под кодом плавно сжимается от 100 % к 0 %.
-- За 5 секунд до истечения полоска становится **красной** визуальное предупреждение.
-- Тап по коду -> копирование в буфер обмена + металлический "toast".
+- A 1-second timer runs on each token card, recalculating the code and remaining seconds.
+- The progress bar beneath the code shrinks smoothly from 100% to 0%.
+- 5 seconds before expiration, the bar turns **red** as a visual warning.
+- Tapping a code copies it to the clipboard and triggers a metallic toast notification.
 
 ---
 
-## 3. Структура проекта
+## 3. Project Structure
 
 ```
 /app/frontend/
-├── index.html                       # точка входа, шрифты Inter + JetBrains Mono
-├── vite.config.js                   # сервер 0.0.0.0:3000, WSS-HMR для preview-домена
-├── tailwind.config.js               # кастомные цвета (charcoal, rust, steel) + анимации
+├── index.html                       # Entry point, Inter + JetBrains Mono fonts
+├── vite.config.js                   # Server 0.0.0.0:3000, WSS-HMR for preview domain
+├── tailwind.config.js               # Custom colors (charcoal, rust, steel) + animations
 ├── postcss.config.js
 ├── package.json                     # vue, vue-router, pinia, otpauth, crypto-js, html5-qrcode
 ├── public/
-│   └── favicon.svg                  # рустовая иконка-замок
+│   └── favicon.svg                  # Rust lock icon
 └── src/
-    ├── main.js                      # bootstrap: Vue + Pinia + Router
-    ├── style.css                    # Tailwind + утилиты (.glass, .metallic, .btn-rust, .input-steel, .bg-grid, .noise)
-    ├── App.vue                      # каркас + router-view с page-transition
+    ├── main.js                      # Bootstrap: Vue + Pinia + Router
+    ├── style.css                    # Tailwind + utilities (.glass, .metallic, .btn-rust, .input-steel, .bg-grid, .noise)
+    ├── App.vue                      # Shell + router-view with page-transition
     │
     ├── router/
-    │   └── index.js                 # маршруты + guard requiresUnlock
+    │   └── index.js                 # Routes + requiresUnlock guard
     │
     ├── stores/                      # Pinia
-    │   ├── auth.js                  # useAuthStore состояние блокировки, PIN, hasPin, wipe
-    │   ├── vault.js                 # useVaultStore CRUD токенов, encrypt/decrypt, export/import
-    │   └── settings.js              # useSettingsStore тема dark/light
+    │   ├── auth.js                  # useAuthStore: lock state, PIN, hasPin, wipe
+    │   ├── vault.js                 # useVaultStore: token CRUD, encrypt/decrypt, export/import
+    │   └── settings.js              # useSettingsStore: dark/light theme
     │
     ├── lib/
     │   ├── crypto.js                # PBKDF2 + AES-256 CBC, encryptJSON / decryptJSON / hashPin
-    │   ├── totp.js                  # обёртка otpauth: generateTOTP, secondsRemaining, parseOtpAuthURI, isValidBase32Secret
-    │   └── categories.js            # CATEGORIES (цвета + label) + guessCategory(issuer, label)
+    │   ├── totp.js                  # otpauth wrapper: generateTOTP, secondsRemaining, parseOtpAuthURI, isValidBase32Secret
+    │   └── categories.js            # CATEGORIES (colors + labels) + guessCategory(issuer, label)
     │
     ├── composables/
-    │   └── useToast.js              # реактивный список toast-сообщений
+    │   └── useToast.js              # Reactive toast notification list
     │
     ├── components/
-    │   ├── Keypad.vue               # цифровая клавиатура 3×4 (1–9, 0, ⌫)
-    │   ├── PinDots.vue              # 4 точки-индикатора ввода PIN
-    │   ├── TokenCard.vue            # карточка токена: код, прогресс, копирование, удаление
-    │   ├── CategoryDot.vue          # цветная точка + название категории
-    │   └── Toaster.vue              # "оксидированный" toast в нижней части экрана
+    │   ├── Keypad.vue               # 3×4 numeric keypad (1–9, 0, ⌫)
+    │   ├── PinDots.vue              # 4 PIN input indicator dots
+    │   ├── TokenCard.vue            # Token card: code, progress, copy, delete
+    │   ├── CategoryDot.vue          # Color dot + category name
+    │   └── Toaster.vue              # "Oxidized" toast at bottom of screen
     │
-    └── views/                       # экраны
-        ├── PinScreen.vue            # 3 режима: create / confirm / enter
-        ├── VaultDashboard.vue       # sticky-поиск, фильтр по категориям, список карточек, FAB
-        ├── AddAccount.vue           # выбор: QR-скан или ручной ввод
-        ├── ScanQR.vue               # камера + reticle с угловыми скобками, scan-line анимация
-        ├── ManualEntry.vue          # форма: issuer, label, secret (Base32), категория, advanced
-        └── Settings.vue             # тема, экспорт, импорт, lock now, wipe (с подтверждением "WIPE")
+    └── views/                       # Screens
+        ├── PinScreen.vue            # 3 modes: create / confirm / enter
+        ├── VaultDashboard.vue       # Sticky search, category filter, card list, FAB
+        ├── AddAccount.vue           # Choice: QR scan or manual entry
+        ├── ScanQR.vue               # Camera + reticle with corner brackets, scan-line animation
+        ├── ManualEntry.vue          # Form: issuer, label, secret (Base32), category, advanced
+        └── Settings.vue             # Theme, export, import, lock now, wipe (with "WIPE" confirmation)
 ```
 
-### Ключевые `data-testid` (для тестов)
+### Key `data-testid` Attributes (for Testing)
 
-| Экран    | testid                                                                                                                                                          |
+| Screen   | testid                                                                                                                                                          |
 |----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | PIN      | `pin-screen`, `pin-dots`, `pin-dot-1..4`, `keypad-0..9`, `keypad-back`, `pin-error`                                                                             |
 | Vault    | `vault-dashboard`, `search-input`, `filter-crypto`, …, `token-card-{id}`, `token-code-{id}`, `token-progress-{id}`, `fab-add`, `lock-button`, `settings-button` |
@@ -135,82 +135,82 @@
 
 ---
 
-## 4. Функционал детальный список
+## 4. Detailed Feature List
 
-### PIN-экран
-- 3 режима автоматически: **Create / Confirm / Enter** (зависит от наличия `oxid:pin-hash`).
-- Точки-индикаторы наполняются Rust-оранжевым с лёгким glow.
-- При несовпадении PIN анимация shake + сброс в режим Create.
-- Фон низкоконтрастная текстура брашированной стали (10–15 % opacity).
+### PIN Screen
+- 3 automatic modes: **Create / Confirm / Enter** (determined by presence of `oxid:pin-hash`).
+- Indicator dots fill with Rust Orange and a subtle glow.
+- On PIN mismatch: shake animation + reset to Create mode.
+- Background: low-contrast brushed steel texture (10–15% opacity).
 
-### Vault (главный экран)
-- Sticky-glass-шапка: количество кодов, кнопки **Lock** и **Settings**.
-- Поле поиска фильтрация в реальном времени по issuer / label / категории.
-- Горизонтальная лента фильтров по 7 категориям (цветная точка + uppercase-метка).
-- Карточки токенов: issuer, label, бейдж алгоритма (для SHA-256/512), 6 цифр кода с разделителем-точкой посередине, тонкая прогресс-полоса.
-- **FAB "+"** добавление токена.
-- Пустое состояние с 3D-иллюстрацией и кнопкой "Forge First Token".
+### Vault (Main Dashboard)
+- Sticky glass header: token counter, **Lock** and **Settings** buttons.
+- Search bar: real-time filtering by issuer / label / category.
+- Horizontal filter ribbon with 7 categories (color dot + uppercase label).
+- Token cards: issuer, label, algorithm badge (for SHA-256/512), 6-digit code with dot separator in the middle, slim progress bar.
+- **FAB "+"**: add token.
+- Empty state with 3D illustration and "Forge First Token" button.
 
-### Добавление токена
-- **QR-скан**: запрос разрешения на камеру -> live-видео с reticle (угловые скобки + бегущая линия) -> авто-парсинг otpauth-URI -> авто-категория -> сохранение.
-- **Вручную**: issuer / label / Base32-секрет с валидацией (только `A-Z2-7`), select категории (с автоподсказкой по issuer), expandable advanced (algo / digits / period).
+### Adding Tokens
+- **QR Scan**: camera permission request -> live video feed with reticle (corner brackets + sweep line) -> auto-parse otpauth URI -> auto-categorization -> save.
+- **Manual Entry**: issuer / label / Base32 secret with validation (`A-Z2-7` only), category selector (with auto-suggestion by issuer), expandable advanced settings (algo / digits / period).
 
-### Настройки
-- **Тема**: переключатель dark / light (сохраняется).
-- **Export Vault**: скачивание зашифрованного `.oxid`-файла с timestamp.
-- **Import Vault**: загрузка файла -> ввод PIN, под которым он был экспортирован -> слияние без дубликатов.
-- **Lock Now**: возврат на PIN-экран.
-- **Wipe All Data**: модалка с обязательным вводом слова `WIPE` для подтверждения, полное уничтожение всех ключей `oxid:*`.
+### Settings
+- **Theme**: dark / light toggle (persisted).
+- **Export Vault**: download encrypted timestamped `.oxid` backup file.
+- **Import Vault**: file upload -> enter the PIN used when exporting -> merge without duplicates.
+- **Lock Now**: lock session and return to PIN screen.
+- **Wipe All Data**: confirmation modal requiring typing `WIPE` to permanently delete all `oxid:*` keys.
 
-### Тосты
-- Появляются снизу по центру.
-- Варианты: `success` (rust) / `error` (red).
-- Авто-скрытие через 2.2 с с easing-анимацией.
+### Toast Notifications
+- Appear at bottom-center of the screen.
+- Variants: `success` (rust) / `error` (red).
+- Auto-dismiss after 2.2s with easing animation.
 
 ---
 
-## 5. Запуск
+## 5. Getting Started
 
-Зависимости устанавливаются автоматически. Сервер уже запущен через supervisor.
+Dependencies are installed automatically. The server is already managed via supervisor.
 
 ```bash
-# вручную (при необходимости)
+# Manual (if needed)
 cd /app/frontend
 yarn install
-yarn start          # vite на 0.0.0.0:3000
+yarn start          # vite on 0.0.0.0:3000
 
-# сборка под продакшн
+# Production build
 yarn build
 ```
 
-Открыть в браузере: `http://localhost:3000` или preview-URL.
+Open in browser: `http://localhost:3000` or preview URL.
 
 ---
 
-## 6. Технические решения и обоснование
+## 6. Technical Decisions and Rationale
 
-| Решение                                      | Почему так                                                                               |
+| Decision                                     | Why                                                                                      |
 |----------------------------------------------|------------------------------------------------------------------------------------------|
-| **Vue 3 Composition API + `<script setup>`** | Меньше boilerplate, лучшая типизация, прямой запрос пользователя                         |
-| **Pinia вместо Vuex**                        | Современный store, лучше разделение по доменам (auth/vault/settings)                     |
-| **PBKDF2 25k iters**                         | Баланс между "дорого для брутфорса" и "приемлемо в браузере" (~150 мс)                   |
-| **AES-256 CBC + PKCS7**                      | Стандарт, есть в `crypto-js` без доп. зависимостей                                       |
-| **`otpauth` (а не самописный TOTP)**         | Полное RFC 6238 соответствие, совместимо с Google/GitHub/AWS QR-кодами                   |
-| **`html5-qrcode`**                           | Работает прямо в `<video>` без WASM, мобильный фокус по умолчанию                        |
-| **localStorage**                             | Спецификация исключает синхронизацию через сервер; IndexedDB избыточен для такого объёма |
-| **PIN в памяти, не в storage**               | Если злоумышленник дампит storage у него только зашифрованные данные                     |
+| **Vue 3 Composition API + `<script setup>`** | Less boilerplate, better type inference, direct user requirement                         |
+| **Pinia over Vuex**                          | Modern store, cleaner domain separation (auth/vault/settings)                            |
+| **PBKDF2 25k iters**                         | Balance between brute-force resistance and in-browser responsiveness (~150 ms)           |
+| **AES-256 CBC + PKCS7**                      | Standard encryption, available in `crypto-js` without extra dependencies                 |
+| **`otpauth` (instead of custom TOTP)**       | Full RFC 6238 compliance, compatible with Google/GitHub/AWS QR codes                     |
+| **`html5-qrcode`**                           | Runs directly inside `<video>` without WASM, mobile autofocus by default                 |
+| **localStorage**                             | Specification excludes server-side sync; IndexedDB is overkill for this data volume      |
+| **PIN in memory, not in storage**            | If an attacker dumps storage, they only get encrypted data                               |
 
 ---
 
-## 7. Лицензия и кредиты
+## 7. License and Credits
 
-- Шрифты: Inter (OFL), JetBrains Mono (OFL).
-- Иконки: вшитые SVG + Phosphor-стиль.
-- Алгоритм TOTP: RFC 6238, реализация `otpauth` (MIT).
-- Криптография: `crypto-js` (MIT).
-- QR-сканер: `html5-qrcode` (Apache-2.0).
+- Fonts: Inter (OFL), JetBrains Mono (OFL).
+- Icons: embedded SVG + Phosphor style.
+- TOTP Algorithm: RFC 6238, implemented via `otpauth` (MIT).
+- Cryptography: `crypto-js` (MIT).
+- QR Scanner: `html5-qrcode` (Apache-2.0).
 
 ---
 
-**Дата:** 15 февраля 2026
-**Версия:** 1.0.0 0xid Edition
+**Date:** February 15, 2026
+**Version:** 1.0.0 0xid Edition
