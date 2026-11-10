@@ -30,17 +30,17 @@ export const useAuthStore = defineStore('auth', {
       this.biometricSupported = isWebAuthnSupported()
       this.platformAuthAvailable = await isPlatformAuthenticatorAvailable()
     },
-    createPin(pin) {
-      const h = hashPin(pin)
+    async createPin(pin) {
+      const h = await hashPin(pin)
       localStorage.setItem(KEYS.pinHash, h)
       this.pin = pin
       this.unlocked = true
       this.hasPin = true
     },
-    verifyPin(pin) {
+    async verifyPin(pin) {
       const stored = localStorage.getItem(KEYS.pinHash)
       if (!stored) return false
-      const h = hashPin(pin)
+      const h = await hashPin(pin)
       if (h === stored) {
         this.pin = pin
         this.unlocked = true
@@ -60,7 +60,7 @@ export const useAuthStore = defineStore('auth', {
     },
     async unlockWithBiometric() {
       const pin = await unlockWithBiometric()
-      const ok = this.verifyPin(pin)
+      const ok = await this.verifyPin(pin)
       if (!ok) {
         // PIN changed underneath; clean up stale biometric registration
         removeBiometric()

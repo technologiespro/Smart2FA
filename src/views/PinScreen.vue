@@ -78,7 +78,7 @@ const error = ref('')
 const mode = ref('enter')
 const bgVideo = ref('')
 
-const bgVideos = ['/bg01.mp4', '/bg02.mp4', '/bg03.mp4', '/bg04.mp4', '/bg05.mp4']
+const bgVideos = ['/bg01.mp4', '/bg03.mp4', '/bg04.mp4', '/bg05.mp4']
 
 onMounted(async () => {
   bgVideo.value = bgVideos[Math.floor(Math.random() * bgVideos.length)]
@@ -95,7 +95,7 @@ async function tryBiometric(silent = false) {
   error.value = ''
   try {
     await auth.unlockWithBiometric()
-    vault.load()
+    await vault.load()
     router.replace({ name: 'vault' })
   } catch (e) {
     const msg = (e?.message || e?.name || 'Biometric failed').toString()
@@ -134,19 +134,19 @@ watch(pinInput, async (val) => {
       mode.value = 'create'
       return
     }
-    auth.createPin(val)
-    vault.load()
+    await auth.createPin(val)
+    await vault.load()
     router.replace({ name: 'vault' })
     return
   }
   // Enter mode
-  const ok = auth.verifyPin(val)
+  const ok = await auth.verifyPin(val)
   if (!ok) {
     error.value = 'Incorrect PIN'
     pinInput.value = ''
     return
   }
-  vault.load()
+  await vault.load()
   router.replace({ name: 'vault' })
 })
 </script>

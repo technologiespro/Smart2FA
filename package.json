@@ -1,6 +1,6 @@
 {
   "name": "smart2fa-oxid",
-  "version": "2.0.0",
+  "version": "2.2.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -28,7 +28,6 @@
     "@fontsource/inter": "^5.2.8",
     "@fontsource/jetbrains-mono": "^5.2.8",
     "@phosphor-icons/vue": "^2.2.1",
-    "crypto-js": "^4.2.0",
     "html5-qrcode": "^2.3.8",
     "otpauth": "^9.3.4",
     "pinia": "^2.2.4",

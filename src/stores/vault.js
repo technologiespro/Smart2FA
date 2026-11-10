@@ -24,7 +24,7 @@ export const useVaultStore = defineStore('vault', {
     },
   },
   actions: {
-    load() {
+    async load() {
       const auth = useAuthStore()
       if (!auth.pin) return
       const raw = localStorage.getItem(STORAGE_KEYS.vault)
@@ -34,18 +34,22 @@ export const useVaultStore = defineStore('vault', {
         return
       }
       try {
-        const data = decryptJSON(raw, auth.pin)
+        const data = await decryptJSON(raw, auth.pin)
         this.tokens = Array.isArray(data) ? data : []
       } catch (e) {
         this.tokens = []
       }
       this.loaded = true
     },
-    persist() {
+    async persist() {
       const auth = useAuthStore()
       if (!auth.pin) return
-      const enc = encryptJSON(this.tokens, auth.pin)
-      localStorage.setItem(STORAGE_KEYS.vault, enc)
+      try {
+        const enc = await encryptJSON(this.tokens, auth.pin)
+        localStorage.setItem(STORAGE_KEYS.vault, enc)
+      } catch (e) {
+        console.error('[Vault] Failed to persist vault:', e)
+      }
     },
     findDuplicate(t) {
       const norm = (s) => String(s || '').trim().toLowerCase()
@@ -86,15 +90,15 @@ export const useVaultStore = defineStore('vault', {
       this.tokens = this.tokens.filter(t => t.id !== id)
       this.persist()
     },
-    exportEncrypted() {
+    async exportEncrypted() {
       const auth = useAuthStore()
       if (!auth.pin) return null
-      return encryptJSON({ version: 1, tokens: this.tokens, exportedAt: Date.now() }, auth.pin)
+      return await encryptJSON({ version: 1, tokens: this.tokens, exportedAt: Date.now() }, auth.pin)
     },
-    importEncrypted(payload, pinOverride = null) {
+    async importEncrypted(payload, pinOverride = null) {
       const auth = useAuthStore()
       const pin = pinOverride || auth.pin
-      const data = decryptJSON(payload, pin)
+      const data = await decryptJSON(payload, pin)
       const incoming = Array.isArray(data) ? data : data.tokens
       if (!Array.isArray(incoming)) throw new Error('Invalid export format')
       // Merge while avoiding exact duplicates by secret+issuer+label
@@ -105,7 +109,7 @@ export const useVaultStore = defineStore('vault', {
           this.tokens.push({ ...t, id: t.id || uid() })
         }
       }
-      this.persist()
+      await this.persist()
       return incoming.length
     },
     clearAll() {

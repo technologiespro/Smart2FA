@@ -291,7 +291,7 @@ function disableBio() {
 }
 
 async function doExport() {
-  const payload = vault.exportEncrypted()
+  const payload = await vault.exportEncrypted()
   if (!payload) return
 
   const filename = `smart2fa-oxid-${Date.now()}.oxid`
@@ -344,9 +344,9 @@ async function onImportFile(e) {
   e.target.value = ''
 }
 
-function doImport() {
+async function doImport() {
   try {
-    const count = vault.importEncrypted(importPayload.value, importPin.value || null)
+    const count = await vault.importEncrypted(importPayload.value, importPin.value || null)
     push({ title: 'IMPORT COMPLETE', description: `${count} tokens added`, variant: 'success' })
     cancelImport()
   } catch (e) {
@@ -361,7 +361,7 @@ function cancelImport() {
 }
 
 function doWipe() {
-  if (wipeConfirm.value !== 'WIPE' || wipeConfirm.value !== 'wipe') return
+  if (wipeConfirm.value.toUpperCase() !== 'WIPE') return
   vault.clearAll()
   auth.wipe()
   push({ title: 'VAULT WIPED', description: 'All data destroyed', variant: 'error' })
